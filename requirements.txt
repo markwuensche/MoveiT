@@ -1,0 +1,7 @@
+mne
+numpy
+scikit-learn
+pylsl
+pygame
+moderngl
+pyopengl
