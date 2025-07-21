@@ -1,3 +1,4 @@
+
 import cv2
 import queue
 from .tunnel_module import TunnelRenderer, default_params
@@ -27,4 +28,3 @@ def run_display(speed_queue):
     finally:
         renderer.release()
         cv2.destroyAllWindows()
-
