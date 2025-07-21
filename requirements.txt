@@ -5,3 +5,5 @@ pylsl
 pygame
 moderngl
 pyopengl
+joblib
+opencv-python
