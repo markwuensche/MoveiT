@@ -1,44 +1,30 @@
-import math
-import queue
-import pygame
 
-WIDTH, HEIGHT = 800, 600
-NUM_LINES = 30
+import cv2
+import queue
+from .tunnel_module import TunnelRenderer, default_params
 
 
 def run_display(speed_queue):
-    """Display a simple moving tunnel controlled by speed."""
-    pygame.init()
-    screen = pygame.display.set_mode((WIDTH, HEIGHT))
-    clock = pygame.time.Clock()
+    """Display the tunnel stimulus controlled by movement speed."""
+    params = default_params()
+    renderer = TunnelRenderer(params)
+    cam_z = 0.0
+    speed = params['speed']
+    dt = 1.0 / params['fps']
+    delay = int(1000 / params['fps'])
 
-    speed = 1.0
-    offset = 0.0
+    try:
+        while True:
+            try:
+                speed = speed_queue.get_nowait()
+            except queue.Empty:
+                pass
 
-    running = True
-    while running:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                running = False
-
-        try:
-            speed = speed_queue.get_nowait()
-        except queue.Empty:
-            pass
-
-        offset += speed
-        screen.fill((0, 0, 0))
-
-        for i in range(NUM_LINES):
-            depth = (i + offset) % NUM_LINES
-            scale = depth / NUM_LINES
-            size = (1 - scale) * min(WIDTH, HEIGHT)
-            color = 255 - int(scale * 255)
-            rect = pygame.Rect(0, 0, size, size)
-            rect.center = (WIDTH // 2, HEIGHT // 2)
-            pygame.draw.rect(screen, (color, color, color), rect, 2)
-
-        pygame.display.flip()
-        clock.tick(60)
-
-    pygame.quit()
+            cam_z += speed * dt
+            frame = renderer.render_frame(cam_z)
+            cv2.imshow('Tunnel', frame)
+            if cv2.waitKey(delay) & 0xFF == ord('q'):
+                break
+    finally:
+        renderer.release()
+        cv2.destroyAllWindows()
