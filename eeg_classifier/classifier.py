@@ -125,8 +125,13 @@ def run_classifier(out_queue, model_path="model.joblib", visualize=False):
                 color = (0, 255, 0) if command == 'speed_up' else (0, 0, 255)
                 cv2.putText(display, command, (10, 60),
                             cv2.FONT_HERSHEY_SIMPLEX, 1.5, color, 2)
-                cv2.imshow('Classifier', display)
-                cv2.waitKey(1)
+                try:
+                    cv2.imshow('Classifier', display)
+                    cv2.waitKey(1)
+                except cv2.error:
+                    print("cv2.imshow failed, falling back to console output.")
+                    use_cv2 = False
+                    use_console = True
             elif use_console:
                 color_code = '\033[92m' if command == 'speed_up' else '\033[91m'
                 reset = '\033[0m'
