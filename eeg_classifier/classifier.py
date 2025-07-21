@@ -93,6 +93,7 @@ def run_classifier(out_queue, model_path="model.joblib", visualize=False):
     model = load(model_path) if os.path.exists(model_path) else None
     threshold = 0.5
     rng = np.random.default_rng()
+
     use_cv2 = False
     use_console = False
     if visualize:
@@ -103,6 +104,7 @@ def run_classifier(out_queue, model_path="model.joblib", visualize=False):
         except cv2.error as e:
             print("cv2.namedWindow failed, falling back to console output.")
             use_console = True
+
 
     try:
         while True:
@@ -120,11 +122,14 @@ def run_classifier(out_queue, model_path="model.joblib", visualize=False):
             else:
                 command = 'speed_up' if value > threshold else 'slow_down'
 
-            if use_cv2:
+
+            if visualize:
+
                 display[:] = 0
                 color = (0, 255, 0) if command == 'speed_up' else (0, 0, 255)
                 cv2.putText(display, command, (10, 60),
                             cv2.FONT_HERSHEY_SIMPLEX, 1.5, color, 2)
+
                 try:
                     cv2.imshow('Classifier', display)
                     cv2.waitKey(1)
@@ -140,8 +145,6 @@ def run_classifier(out_queue, model_path="model.joblib", visualize=False):
             out_queue.put(command)
             time.sleep(0.1)
     finally:
-        if use_cv2:
-            try:
-                cv2.destroyAllWindows()
-            except cv2.error as e:
-                print("cv2.destroyAllWindows failed:", e)
+
+        if visualize:
+            cv2.destroyAllWindows()
