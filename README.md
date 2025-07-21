@@ -26,3 +26,7 @@ file. When present, this model is loaded automatically by `run_classifier`. If
 `run_all.py` is executed, classifier decisions will be displayed in a small
 window in real time.
 
+
+If OpenCV cannot create or display GUI windows (e.g. on a headless server),
+the classifier falls back to printing the decisions in the terminal so you can
+still observe the output.

@@ -93,9 +93,18 @@ def run_classifier(out_queue, model_path="model.joblib", visualize=False):
     model = load(model_path) if os.path.exists(model_path) else None
     threshold = 0.5
     rng = np.random.default_rng()
+
+    use_cv2 = False
+    use_console = False
     if visualize:
-        cv2.namedWindow('Classifier', cv2.WINDOW_NORMAL)
-        display = np.zeros((100, 300, 3), dtype=np.uint8)
+        try:
+            cv2.namedWindow('Classifier', cv2.WINDOW_NORMAL)
+            display = np.zeros((100, 300, 3), dtype=np.uint8)
+            use_cv2 = True
+        except cv2.error as e:
+            print("cv2.namedWindow failed, falling back to console output.")
+            use_console = True
+
 
     try:
         while True:
@@ -113,16 +122,29 @@ def run_classifier(out_queue, model_path="model.joblib", visualize=False):
             else:
                 command = 'speed_up' if value > threshold else 'slow_down'
 
+
             if visualize:
+
                 display[:] = 0
                 color = (0, 255, 0) if command == 'speed_up' else (0, 0, 255)
                 cv2.putText(display, command, (10, 60),
                             cv2.FONT_HERSHEY_SIMPLEX, 1.5, color, 2)
-                cv2.imshow('Classifier', display)
-                cv2.waitKey(1)
+
+                try:
+                    cv2.imshow('Classifier', display)
+                    cv2.waitKey(1)
+                except cv2.error:
+                    print("cv2.imshow failed, falling back to console output.")
+                    use_cv2 = False
+                    use_console = True
+            elif use_console:
+                color_code = '\033[92m' if command == 'speed_up' else '\033[91m'
+                reset = '\033[0m'
+                print(f"{color_code}{command}{reset}")
 
             out_queue.put(command)
             time.sleep(0.1)
     finally:
+
         if visualize:
             cv2.destroyAllWindows()
