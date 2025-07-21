@@ -6,6 +6,6 @@ from tunnel_display.run_display import run_display
 if __name__ == "__main__":
     classifier_queue = Queue()
     speed_queue = Queue()
-    Process(target=run_classifier, args=(classifier_queue,)).start()
+    Process(target=run_classifier, args=(classifier_queue,), kwargs={'visualize': True}).start()
     Process(target=run_interface, args=(classifier_queue, speed_queue)).start()
     Process(target=run_display, args=(speed_queue,)).start()

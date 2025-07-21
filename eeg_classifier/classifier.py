@@ -97,14 +97,6 @@ def run_classifier(out_queue, model_path="model.joblib", visualize=False):
         cv2.namedWindow('Classifier', cv2.WINDOW_NORMAL)
         display = np.zeros((100, 300, 3), dtype=np.uint8)
 
-    while True:
-        if inlet is not None:
-            sample, _ = inlet.pull_sample(timeout=1.0)
-            if sample is None:
-                continue
-            value = np.mean(sample)
-        else:
-            value = rng.random()
     try:
         while True:
             if inlet is not None:
@@ -129,10 +121,8 @@ def run_classifier(out_queue, model_path="model.joblib", visualize=False):
                 cv2.imshow('Classifier', display)
                 cv2.waitKey(1)
 
-        command = 'speed_up' if value > threshold else 'slow_down'
-        out_queue.put(command)
-        time.sleep(0.1)
-
+            out_queue.put(command)
+            time.sleep(0.1)
     finally:
         if visualize:
             cv2.destroyAllWindows()
