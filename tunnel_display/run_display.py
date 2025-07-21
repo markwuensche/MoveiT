@@ -48,7 +48,10 @@ def run_display(speed_queue):
                     show_frame_matplotlib(frame)
     finally:
         renderer.release()
-        if not use_matplotlib:
+        if use_matplotlib:
+            plt.close()
+            plt.ioff()
+        else:
             try:
                 cv2.destroyAllWindows()
             except cv2.error as e:
